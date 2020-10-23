@@ -5,11 +5,16 @@ project(Test LANGUAGES CXX)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-set(headers
-    server.h
+set(server_headers
+    server/server.h
+    server/serverprocessor.h
+    server/serverprocessorexercise.h
     )
 
-set(sources
-    server.cpp
+set(server_sources
+    server/server.cpp
+    server/serverprocessor.cpp
+    server/serverprocessorexercise.cpp
+    server/main.cpp
     )
-add_executable(Test main.cpp ${headers} ${sources})
+add_executable(Test ${server_headers} ${server_sources})
