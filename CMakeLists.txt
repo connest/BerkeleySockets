@@ -6,6 +6,13 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 
+set(shared_headers
+    shared/ArgsParser.h
+    )
+
+set(shared_sources
+    shared/ArgsParser.cpp
+    )
 
 set(server_headers
     server/server.h
@@ -37,5 +44,5 @@ set(client_sources
     )
 
 
-add_executable(Test ${server_headers} ${server_sources})
-add_executable(Test_client ${client_headers} ${client_sources})
+add_executable(Server ${server_headers} ${server_sources} ${shared_headers} ${shared_sources})
+add_executable(Client ${client_headers} ${client_sources} ${shared_headers} ${shared_sources})

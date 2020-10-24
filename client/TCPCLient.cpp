@@ -34,13 +34,13 @@ int TCPClient::init()
     int res = inet_pton(AF_INET, address.data(), &server_address.sin_addr);
     if(res <= 0) {
         std::cerr<<"inet_pton error occured" <<std::endl;
-        return 1;
+        return 2;
     }
 
     res = connect(sockfd, (struct sockaddr *)&server_address, sizeof(server_address));
     if(res < 0) {
         std::cerr<<"Error : Connect Failed"<<std::endl;
-        return 1;
+        return 3;
     }
 
     return 0;
