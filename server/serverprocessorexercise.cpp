@@ -21,8 +21,11 @@ std::string ServerProcessorExercise::process(std::string &&buf)
 
     //erase last space
     out.seekp(-1,out.cur);
-
     out << std::endl << sum;
+
+//    //If no any numbers
+//    if(out.str().empty())
+//        return "\n0";
 
     return out.str();
 }

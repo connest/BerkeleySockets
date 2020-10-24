@@ -84,6 +84,8 @@ public:
 
                 } else {
                     int length = read_from_client(fd, buf, 1024);
+                    //TODO refactor!!!
+                    buf[length] = 0;
 
                     std::string request;
                     request.reserve(length + 1);
@@ -102,6 +104,12 @@ public:
                             close_connection(fd);
 
                     }
+
+                    //clear buf
+                    buf[0] = 0;
+                    request.clear();
+
+
                 }
             }
         }
