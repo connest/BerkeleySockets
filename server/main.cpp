@@ -1,19 +1,56 @@
+#include "ServerProcessor.h"
+#include "ServerFactory.h"
 
-#include "server.h"
-#include "serverprocessorexercise.h"
-
+#include "TCPServer.h"
 #include "UDPServer.h"
-int main()
+
+#include "../shared/ArgsParser.h"
+
+#include <iostream>
+#include <thread>
+
+void runServer(IServerProcessor* processor, IServer* server)
 {
-    IServerProcessor* processor = new ServerProcessorExercise();
+    server->init(processor);
+    server->start();
+}
 
-//    std::string str = "20 apples, 30       55 ban77anas, 15 peaches and 1 watermelon";
-//    std::cout<<processor->process(std::move(str))<<std::endl;
+int main(int argc, char *argv[])
+{
+    ArgsParser parser;
 
-//    Server s(3456);
-//    s.init(processor);
-//    s.start();
-    UDPServer s(8877);
-    s.init(processor);
-    s.start();
+    parser  .addOption("port", 'p', required_argument)
+            .setHelpText(
+                "Usage: Server -p <port>\r\n"
+                " --port -p  - port\r\n"
+                " --help -?  - show this message\r\n"
+                );
+
+    if(parser.parse(argc, argv))
+        return 0; //Show help....
+
+
+    std::string _port {parser.getOption('p')};
+    if(_port.empty()) {
+        std::cerr << "Invalid argument: port should not be empty" << std::endl;
+        parser.showHelp();
+        return 1;
+    }
+
+    int port = std::stoi( _port );
+
+
+    auto processor = std::make_unique<ServerProcessor>();
+    auto tcpServer = ServerFactory::create<TCPServer>(port);
+    auto udpServer = ServerFactory::create<UDPServer>(port);
+
+
+
+    std::thread tcp_thread(runServer, processor.get(), tcpServer.get());
+
+    runServer(processor.get(), udpServer.get());
+
+    tcp_thread.join();
+
+    return 0;
 }

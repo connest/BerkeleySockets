@@ -1,5 +1,4 @@
-#ifndef ARGSPARSER_H
-#define ARGSPARSER_H
+#pragma once
 
 #include <string>
 #include <vector>
@@ -63,4 +62,3 @@ public:
     void showHelp();
 };
 
-#endif // ARGSPARSER_H

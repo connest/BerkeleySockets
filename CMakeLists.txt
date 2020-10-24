@@ -14,20 +14,24 @@ set(shared_sources
     shared/ArgsParser.cpp
     )
 
-set(server_headers
-    server/server.h
-    server/serverprocessor.h
-    server/serverprocessorexercise.h
 
+
+set(server_headers
+    server/IServer.h
+    server/ServerFactory.h
+    server/IServerProcessor.h
+    server/ServerProcessor.h
     server/UDPServer.h
+    server/TCPServer.h
     )
 
 set(server_sources
-    server/server.cpp
-    server/serverprocessor.cpp
-    server/serverprocessorexercise.cpp
+    server/TCPServer.cpp
+    server/UDPServer.cpp
+    server/ServerProcessor.cpp
     server/main.cpp
     )
+
 
 
 set(client_headers
@@ -45,4 +49,6 @@ set(client_sources
 
 
 add_executable(Server ${server_headers} ${server_sources} ${shared_headers} ${shared_sources})
+target_link_libraries(Server pthread)
+
 add_executable(Client ${client_headers} ${client_sources} ${shared_headers} ${shared_sources})

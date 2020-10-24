@@ -6,7 +6,7 @@
 
 #include "../shared/ArgsParser.h"
 
-bool validation(ArgsParser& parser, std::string& host, short& port)
+bool validate(ArgsParser& parser, std::string& host, short& port)
 {
     if(parser.hasOption('u') && parser.hasOption('t')) {
         std::cerr << "Invalid argument: cannot be UDP and TCP ogether" << std::endl;
@@ -35,15 +35,15 @@ int main(int argc, char *argv[]) {
 
     parser  .addOption("host", 'h', required_argument)
             .addOption("port", 'p', required_argument)
-            .addOption("UPD", 'u', no_argument)
-            .addOption("TCP", 't', no_argument)
+            .addOption("UPD",  'u', no_argument)
+            .addOption("TCP",  't', no_argument)
             .setHelpText(
                 "Usage: Client -h <ip-address> -p <port> -t \r\n"
-                "--host -h  - ip-address\r\n"
-                "--port -p  - port\r\n"
-                "--UDP  -u  - use UDP\r\n"
-                "--TCP  -u  - use TCP\r\n"
-
+                " --host -h  - ip-address\r\n"
+                " --port -p  - port\r\n"
+                " --TCP  -t  - use TCP (default)\r\n"
+                " --UDP  -u  - use UDP\r\n"
+                " --help -?  - show this message\r\n"
                 );
 
     if(parser.parse(argc, argv))
@@ -51,7 +51,7 @@ int main(int argc, char *argv[]) {
 
     std::string host;
     short port;
-    bool is_valid = validation(parser, host, port);
+    bool is_valid = validate(parser, host, port);
 
     if(!is_valid) {
         parser.showHelp();

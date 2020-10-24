@@ -1,12 +1,9 @@
-#include "serverprocessorexercise.h"
+#include "ServerProcessor.h"
 
 #include <sstream>
 #include <iostream>
-ServerProcessorExercise::ServerProcessorExercise()
-{
-}
-
-std::string ServerProcessorExercise::process(std::string &&buf)
+#include <algorithm>
+std::string ServerProcessor::process(std::string &&buf)
 {
     std::vector<int> numbers = extractIntegerWords(buf);
 
@@ -23,14 +20,10 @@ std::string ServerProcessorExercise::process(std::string &&buf)
     out.seekp(-1,out.cur);
     out << std::endl << sum;
 
-//    //If no any numbers
-//    if(out.str().empty())
-//        return "\n0";
-
     return out.str();
 }
 
-std::vector<int> ServerProcessorExercise::extractIntegerWords(std::string str)
+std::vector<int> ServerProcessor::extractIntegerWords(std::string str)
 {
     // In case, when "text77other"
     // stringstream ignore 77

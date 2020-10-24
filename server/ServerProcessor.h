@@ -1,11 +1,10 @@
 #pragma once
-#include "serverprocessor.h"
+#include "IServerProcessor.h"
 
 #include <vector>
-class ServerProcessorExercise : public IServerProcessor
+class ServerProcessor : public IServerProcessor
 {
 public:
-    ServerProcessorExercise();
 
     // IServerProcessor interface
 public:
