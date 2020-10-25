@@ -7,6 +7,15 @@
 #include "../shared/ArgsParser.h"
 
 #include <iostream>
+
+
+/**
+ * @brief validate arguments
+ * @param parser object, which contains values
+ * @param host ip-address
+ * @param port port
+ * @return success flag
+ */
 bool validate(ArgsParser& parser, std::string& host, short& port)
 {
     if(parser.hasOption('u') && parser.hasOption('t')) {
@@ -30,7 +39,16 @@ bool validate(ArgsParser& parser, std::string& host, short& port)
     return true;
 }
 
-int main(int argc, char *argv[]) {
+/**
+ * @brief parse console arguments
+ * @param argc arguments count
+ * @param argv arguments strings
+ * @return pair <connection object, success>
+ */
+std::pair<std::unique_ptr<IClient>, bool>
+consoleParse(int argc, char *argv[])
+{
+    std::unique_ptr<IClient> client;
 
     ArgsParser parser;
 
@@ -48,31 +66,41 @@ int main(int argc, char *argv[]) {
                 );
 
     if(parser.parse(argc, argv))
-        return 0; //Show help....
+        return {std::move(client), false};
+
 
     std::string host;
     short port;
+
     bool is_valid = validate(parser, host, port);
 
     if(!is_valid) {
         parser.showHelp();
-        return 1;
+        return {std::move(client), false};
     }
 
 
-    std::unique_ptr<IClient> client;
-
     if(parser.hasOption('u')) {
+        std::cout<<"UDP mode..." <<std::endl;
         client = ClientFactory::create<UDPClient>(std::move(host), std::move(port));
 
     } else { //defualt TCP
+        std::cout<<"TCP mode..." <<std::endl;
         client = ClientFactory::create<TCPClient>(std::move(host), std::move(port));
 
     }
 
+    return {std::move(client), true};
+}
 
 
+int main(int argc, char *argv[]) {
 
+    auto result = consoleParse(argc, argv);
+    if(!result.second)
+        return 1;
+
+    std::unique_ptr<IClient> client = std::move(result.first);
 
 
     int res = client->init();
@@ -82,11 +110,11 @@ int main(int argc, char *argv[]) {
         return 1;
     }
 
-    std::string request;
 
     std::cout<<"Input text:"<<std::endl;
-    std::getline(std::cin, request, '\n');
 
+    std::string request;
+    std::getline(std::cin, request, '\n');
 
 
     client->send(std::move(request));

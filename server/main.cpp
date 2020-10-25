@@ -11,7 +11,10 @@
 
 void runServer(IServerProcessor* processor, IServer* server)
 {
-    server->init(processor);
+    int res = server->init(processor);
+    if(res)
+        return;
+
     server->start();
 }
 
@@ -42,7 +45,10 @@ int main(int argc, char *argv[])
 
     auto processor = std::make_unique<ServerProcessor>();
     auto tcpServer = ServerFactory::create<TCPServer>(port);
+
+//    runServer(processor.get(), tcpServer.get());
     auto udpServer = ServerFactory::create<UDPServer>(port);
+
 
 
 

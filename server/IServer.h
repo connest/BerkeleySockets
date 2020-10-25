@@ -23,8 +23,9 @@ public:
     /**
      * @brief init master socket
      * @param processor object which process readed data
+     * @return 0 or error code
      */
-    virtual void init(IServerProcessor* processor) = 0;
+    virtual int init(IServerProcessor* processor) = 0;
 
     /**
      * @brief start read-write loop

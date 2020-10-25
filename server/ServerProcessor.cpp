@@ -17,7 +17,9 @@ std::string ServerProcessor::process(std::string &&buf)
     }
 
     //erase last space
-    out.seekp(-1,out.cur);
+    if(!numbers.empty())
+        out.seekp(-1,out.cur);
+
     out << std::endl << sum;
 
     return out.str();
@@ -25,8 +27,9 @@ std::string ServerProcessor::process(std::string &&buf)
 
 std::vector<int> ServerProcessor::extractIntegerWords(std::string str)
 {
-    // In case, when "text77other"
+    // In case "text77other"
     // stringstream ignore 77
+    // so, set all non-number text to spaces
     std::transform(str.begin(), str.end(), str.begin(), [](const auto& symbol) {
        if(symbol < '0' || symbol > '9')
           return ' ';

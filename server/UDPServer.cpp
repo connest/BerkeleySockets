@@ -1,4 +1,4 @@
- #include "UDPServer.h"
+#include "UDPServer.h"
 
 
 #include <iostream>
@@ -18,52 +18,37 @@ UDPServer::~UDPServer() {
         close(m_socket);
 }
 
-void UDPServer::init(IServerProcessor *processor)
+int UDPServer::init(IServerProcessor *processor)
 {
     this->processor = processor;
 
     addrinfo *servinfo, *p;
 
-    addrinfo hints {
-        .ai_family = AF_UNSPEC,
-        .ai_socktype = SOCK_DGRAM
-    };
-
-    hints.ai_flags = AI_PASSIVE;
+    int res = getAddressInfo(port, servinfo);
+    if(res)
+        return -1;
 
 
-    int res = getaddrinfo(NULL, std::to_string(port).c_str(), &hints, &servinfo);
-    if (res) {
-        std::cerr << "getaddrinfo: " << gai_strerror(res) << std::endl;
-        exit(1);
-    }
-
-
-    // цикл по всем результатам и связывание с первым возможным
-    for(p = servinfo; p != NULL; p = p->ai_next) {
-        m_socket = socket(p->ai_family, p->ai_socktype, p->ai_protocol);
-        if (m_socket < 0) {
-            std::cerr<<"error: socket: " << errno <<std::endl;
+    for(p = servinfo; p; p = p->ai_next) {
+        res = createMasterSocket(p);
+        if(res)
             continue;
-        }
 
-        res = bind(m_socket, p->ai_addr, p->ai_addrlen);
-        if (res < 0) {
-            close(m_socket);
-            std::cerr<<"Cannot bind IPv4, errno: " << errno <<std::endl;
+        res = bindMasterSocket(p);
+        if(res)
             continue;
-        }
 
         break;
     }
 
     if (p == NULL) {
         std::cerr<<"listener: failed to bind socket" <<std::endl;
-        exit(1);
+        return -2;
     }
+
     freeaddrinfo(servinfo);
 
-
+    return 0;
 }
 
 void UDPServer::start()
@@ -73,41 +58,52 @@ void UDPServer::start()
     sockaddr_storage client;
     while(true)
     {
-        int length = readFromClient(1024, client);
-        if (length < 0) {
-            std::cerr<<"recvfrom error, errno: " << errno <<std::endl;
+        auto result = readFromClient(client);
+        if(!result.second)
             continue;
-        }
 
-        buf[length] = 0;
+//        std::cout << result.first << std::endl;
+        std::string response = processor->process(std::move(result.first));
 
-        std::string request;
-        request.reserve(length + 1);
-        request.assign(buf);
-
-
-        std::cout << request << std::endl;
-        std::string response = processor->process(std::move(request));
-
-        int res = sendToClient(response.data(), response.length(), client);
-        if(res < 0) {
-            std::cerr<<"sendto error, errno: " << errno <<std::endl;
-            continue;
-        }
+        sendToClient(client, response);
     }
-
-
-
-    close(m_socket);
 }
 
-int UDPServer::readFromClient(int maxlength, sockaddr_storage &client)
+int UDPServer::readFromClient(const sockaddr_storage &client, int maxlength)
 {
     socklen_t addr_len = sizeof (client);
     return recvfrom(m_socket, buf, maxlength , 0, (struct sockaddr *)&client, &addr_len);
 }
 
-int UDPServer::sendToClient(char *data, int length, sockaddr_storage &client)
+std::pair<std::string, bool> UDPServer::readFromClient(const sockaddr_storage &client)
+{
+    int length = readFromClient(client, 1024);
+    if (length < 0) {
+        std::cerr<<"recvfrom error, errno: " << errno <<std::endl;
+        return {{}, false};
+    }
+
+    buf[length] = 0;
+
+    std::string request;
+    request.reserve(length + 1);
+    request.assign(buf);
+
+    return {std::move(request), true};
+
+}
+
+int UDPServer::sendToClient(const sockaddr_storage &client, const std::string &response)
+{
+    int res = sendToClient(client, response.data(), response.length());
+    if(res < 0) {
+        std::cerr<<"sendto error, errno: " << errno <<std::endl;
+        return -1;
+    }
+    return 0;
+}
+
+int UDPServer::sendToClient(const sockaddr_storage &client, const char *data, int length)
 {
     int out_len;
     const char *p;
@@ -119,5 +115,47 @@ int UDPServer::sendToClient(char *data, int length, sockaddr_storage &client)
         }
         p += out_len;
     }
+    return 0;
+}
+
+int UDPServer::getAddressInfo(short port, addrinfo *&servinfo)
+{
+    addrinfo hints {
+        .ai_family = AF_UNSPEC,
+                .ai_socktype = SOCK_DGRAM
+    };
+
+    hints.ai_flags = AI_PASSIVE;
+
+
+    int res = getaddrinfo(NULL, std::to_string(port).data(), &hints, &servinfo);
+    if (res) {
+        std::cerr << "getaddrinfo: " << gai_strerror(res) << std::endl;
+        return -1;
+    }
+
+    return 0;
+}
+
+int UDPServer::createMasterSocket(const addrinfo *servinfo)
+{
+    m_socket = socket(servinfo->ai_family, servinfo->ai_socktype, servinfo->ai_protocol);
+    if (m_socket < 0) {
+        std::cerr<<"error: socket: " << errno <<std::endl;
+        return -1;
+    }
+
+    return 0;
+}
+
+int UDPServer::bindMasterSocket(const addrinfo *servinfo)
+{
+    int res = bind(m_socket, servinfo->ai_addr, servinfo->ai_addrlen);
+    if (res < 0) {
+        close(m_socket);
+        std::cerr<<"Cannot bind IPv4, errno: " << errno <<std::endl;
+        return -1;
+    }
+
     return 0;
 }
