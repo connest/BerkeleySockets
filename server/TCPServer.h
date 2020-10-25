@@ -26,15 +26,12 @@ private:
     int sendToClient(int fd, const char* data, int length);
     int sendToClient(int fd, const std::string& response);
 
-
     int setBlocking(int fd, bool val);
     void pollfdsAdd(int fd);
     void pollfdsDel(int fd);
 
-
     int createMasterSocket();
     int bindMasterSocket(short port);
-
 
     int poll();
     void pollEvents();

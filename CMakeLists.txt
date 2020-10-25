@@ -4,7 +4,7 @@ project(Test LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
-
+set(CMAKE_BUILD_TYPE Debug)
 
 set(shared_headers
     shared/ArgsParser.h
@@ -39,12 +39,14 @@ set(client_headers
     client/UDPClient.h
     client/TCPClient.h
     client/ClientFactory.h
+    client/ClientProcessor.h
     )
 
 set(client_sources
     client/main.cpp
     client/UDPClient.cpp
     client/TCPCLient.cpp
+    client/ClientProcessor.cpp
     )
 
 

@@ -77,7 +77,7 @@ int UDPServer::readFromClient(const sockaddr_storage &client, int maxlength)
 
 std::pair<std::string, bool> UDPServer::readFromClient(const sockaddr_storage &client)
 {
-    int length = readFromClient(client, 1024);
+    int length = readFromClient(client, 1023);
     if (length < 0) {
         std::cerr<<"recvfrom error, errno: " << errno <<std::endl;
         return {{}, false};
@@ -105,17 +105,31 @@ int UDPServer::sendToClient(const sockaddr_storage &client, const std::string &r
 
 int UDPServer::sendToClient(const sockaddr_storage &client, const char *data, int length)
 {
-    int out_len;
-    const char *p;
-    for (p = data; length; length -= out_len) {
+    int out_len {0};
+    const char *p = data;
+    while (length) {
+        std::cout<< "data: '"<< p << "'" << std::endl << "length: " << length <<std::endl;
         out_len = sendto(m_socket, p, length, 0, (struct sockaddr *)&client, sizeof (client));
-        if (out_len < 0) {
+        if (out_len <= 0) {
             std::cerr<<"send error: " << errno <<std::endl;
             return -1;
         }
         p += out_len;
+        length -= out_len;
     }
     return 0;
+
+//    int out_len;
+//    const char *p;
+//    for (p = data; length; length -= out_len) {
+//        out_len = sendto(m_socket, p, length, 0, (struct sockaddr *)&client, sizeof (client));
+//        if (out_len < 0) {
+//            std::cerr<<"send error: " << errno <<std::endl;
+//            return -1;
+//        }
+//        p += out_len;
+//    }
+//    return 0;
 }
 
 int UDPServer::getAddressInfo(short port, addrinfo *&servinfo)

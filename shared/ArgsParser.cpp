@@ -21,7 +21,9 @@ ArgsParser &ArgsParser::setHelpText(std::string &&text)
 
 int ArgsParser::parse(int argc, char *argv[])
 {
+    //--help by default
     opts.push_back({"help", no_argument, NULL, '?'});
+    //end of opts
     opts.push_back({NULL, no_argument, NULL, 0});
 
 
@@ -31,7 +33,6 @@ int ArgsParser::parse(int argc, char *argv[])
         switch( opt ) {
         case '?':
             showHelp();
-            opt = -1; // if help, no execute
             return 1;
 
         default:

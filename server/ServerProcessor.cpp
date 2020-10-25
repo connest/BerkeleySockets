@@ -5,6 +5,7 @@
 #include <algorithm>
 std::string ServerProcessor::process(std::string &&buf)
 {
+    std::cout<< "data: " << buf << std::endl;
     std::vector<int> numbers = extractIntegerWords(buf);
 
     std::stable_sort(numbers.begin(), numbers.end());
@@ -21,6 +22,7 @@ std::string ServerProcessor::process(std::string &&buf)
         out.seekp(-1,out.cur);
 
     out << std::endl << sum;
+    std::cout<< "out: "<< out.str()  << std::endl;
 
     return out.str();
 }

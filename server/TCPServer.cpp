@@ -129,7 +129,7 @@ int TCPServer::readFromClient(int fd, char *buf, int maxlength)
 
 std::pair<std::string, bool> TCPServer::readFromClient(int fd)
 {
-    int length = readFromClient(fd, buf, 1024);
+    int length = readFromClient(fd, buf, 1023);
 
     if(length < 0) {
         closeConnection(fd);
@@ -150,23 +150,26 @@ std::pair<std::string, bool> TCPServer::readFromClient(int fd)
 
 int TCPServer::sendToClient(int fd, const char *data, int length)
 {
-    int out_len;
-    const char *p;
-    for (p = data; length; length -= out_len) {
-        out_len = send(fd, p, length, 0);
-        if (out_len < 0) {
+
+    int out_len {0};
+    const char *p = data;
+    while (length) {
+        std::cout<< "data: '"<< p << "'" << std::endl << "length: " << length <<std::endl;
+        out_len = send(fd, p, length, MSG_NOSIGNAL);
+        if (out_len <= 0) {
             std::cerr<<"send error: " << errno <<std::endl;
             closeConnection(fd);
             return -1;
         }
         p += out_len;
+        length -= out_len;
     }
     return 0;
 }
 
 int TCPServer::sendToClient(int fd, const std::string &response)
 {
-    return sendToClient(fd, response.data(), response.length());
+    return sendToClient(fd, response.c_str(), response.length() + 1);
 }
 
 int TCPServer::setBlocking(int fd, bool val)
