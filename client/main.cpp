@@ -39,7 +39,7 @@ int main(int argc, char *argv[]) {
             .addOption("TCP",  't', no_argument)
             .setHelpText(
                 "Usage: Client -h <ip-address> -p <port> -t \r\n"
-                " --host -h  - ip-address\r\n"
+                " --host -h  - ip-address (default 127.0.0.1)\r\n"
                 " --port -p  - port\r\n"
                 " --TCP  -t  - use TCP (default)\r\n"
                 " --UDP  -u  - use UDP\r\n"
