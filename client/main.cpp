@@ -6,6 +6,7 @@
 
 #include "../shared/ArgsParser.h"
 
+#include <iostream>
 bool validate(ArgsParser& parser, std::string& host, short& port)
 {
     if(parser.hasOption('u') && parser.hasOption('t')) {
@@ -94,11 +95,6 @@ int main(int argc, char *argv[]) {
     client->recv(recvBuff, 1024);
 
     std::cout << recvBuff << std::endl;
-
-    return 0;
-
-
-
 
     return 0;
 }
