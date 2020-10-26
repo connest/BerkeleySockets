@@ -4,6 +4,7 @@
 #include <iostream>
 #include <unistd.h>
 #include <netdb.h>
+#include <cstring>
 
 UDPServer::UDPServer(short port)
     : IServer(port)
@@ -118,27 +119,15 @@ int UDPServer::sendToClient(const sockaddr_storage &client, const char *data, in
         length -= out_len;
     }
     return 0;
-
-//    int out_len;
-//    const char *p;
-//    for (p = data; length; length -= out_len) {
-//        out_len = sendto(m_socket, p, length, 0, (struct sockaddr *)&client, sizeof (client));
-//        if (out_len < 0) {
-//            std::cerr<<"send error: " << errno <<std::endl;
-//            return -1;
-//        }
-//        p += out_len;
-//    }
-//    return 0;
 }
 
 int UDPServer::getAddressInfo(short port, addrinfo *&servinfo)
 {
-    addrinfo hints {
-        .ai_family = AF_UNSPEC,
-                .ai_socktype = SOCK_DGRAM
-    };
+    addrinfo hints;
 
+    memset(&hints, 0, sizeof(hints));
+    hints.ai_family = AF_UNSPEC;
+    hints.ai_socktype = SOCK_DGRAM;
     hints.ai_flags = AI_PASSIVE;
 
 

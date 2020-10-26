@@ -3,6 +3,7 @@
 #include <unistd.h>
 #include <arpa/inet.h>
 #include <iostream>
+#include <cstring>
 
 
 TCPClient::TCPClient(const std::string &address, short port)
@@ -68,10 +69,10 @@ int TCPClient::createMaterSocket()
 
 sockaddr_in TCPClient::getBindAddress(short port)
 {
-    sockaddr_in server_address = {
-        .sin_family = AF_INET,
-        .sin_port = htons(port)
-    };
+    sockaddr_in server_address;
+    memset(&server_address, 0, sizeof(server_address));
+    server_address.sin_family = AF_INET;
+    server_address.sin_port = htons(port);
 
     int res = inet_pton(AF_INET, address.data(), &server_address.sin_addr);
     if(res <= 0) {

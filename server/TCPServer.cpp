@@ -9,6 +9,7 @@
 #include <unistd.h>
 #include <fcntl.h>
 #include <poll.h>
+#include <cstring>
 
 TCPServer::TCPServer(short port)
     : IServer(port)
@@ -201,10 +202,14 @@ int TCPServer::setBlocking(int fd, bool val)
 
 void TCPServer::pollfdsAdd(int fd)
 {
-    pollfds.push_back({
-                          .fd = fd,
-                          .events = POLLIN
-                      });
+    pollfd _fd;
+
+
+    memset(&_fd, 0, sizeof(_fd));
+    _fd.fd = fd;
+    _fd.events = POLLIN;
+
+    pollfds.push_back(_fd);
 }
 
 void TCPServer::pollfdsDel(int fd)
@@ -229,13 +234,13 @@ int TCPServer::createMasterSocket()
 
 int TCPServer::bindMasterSocket(short port)
 {
-    sockaddr_in bind_addr4 = {
-        .sin_family = AF_INET,
-        .sin_port = htons(port),
-        .sin_addr = {
-            .s_addr = htonl(INADDR_ANY),
-        },
-    };
+    sockaddr_in bind_addr4;
+
+    memset(&bind_addr4, 0, sizeof(bind_addr4));
+    bind_addr4.sin_family = AF_INET;
+    bind_addr4.sin_port = htons(port);
+    bind_addr4.sin_addr.s_addr = htonl(INADDR_ANY);
+
 
     int res = bind(m_socket, (struct sockaddr *)&bind_addr4, sizeof(bind_addr4));
     if (res < 0) {

@@ -7,10 +7,7 @@
 #include "IClient.h"
 class UDPClient : public IClient
 {
-    sockaddr_in server_address {
-        .sin_family   = AF_INET,
-        .sin_port     = htons(port)
-    };
+    sockaddr_in server_address;
 public:
     UDPClient(const std::string& address, short port);
     virtual ~UDPClient();

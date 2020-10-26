@@ -4,11 +4,15 @@
 #include <iostream>
 #include <arpa/inet.h>
 #include <unistd.h>
+#include <cstring>
 
 UDPClient::UDPClient(const std::string &address, short port)
     : IClient(address, port)
 {
 
+    memset(&server_address, 0, sizeof(server_address));
+    server_address.sin_family = AF_INET;
+    server_address.sin_port = htons(port);
 }
 
 UDPClient::~UDPClient()
